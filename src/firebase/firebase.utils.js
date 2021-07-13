@@ -12,6 +12,33 @@ const config = {
     measurementId: "G-36W98QFT9W"
   };
 
+ export const createUserProfileDocument = async (userAuth, additionalData) => {
+      if(!userAuth) return;
+
+      const userRef = firestore.doc(`users/${userAuth.uid}`);
+      const snapshot = userRef.get();
+
+      if(!snapshot.exists) {
+        const {displayName, email} = userAuth;
+        const createAt = new Date();
+
+        try {
+            await userRef.set({
+              displayName,
+              email,
+              createAt,
+              ...additionalData,
+            })
+        } catch(error) {
+            console.log('error creating user', error.message);
+        }
+      }
+
+     return userRef;
+ }
+
+
+
 
 firebase.initializeApp(config);
 
@@ -24,3 +51,4 @@ provider.setCustomParameters({prompt:'select_account'});
 export const signInWithGoogle = () => auth.signInWithPopup(provider);
 
 export default firebase;
+
